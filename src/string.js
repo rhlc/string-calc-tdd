@@ -29,25 +29,21 @@ const parseInput = (numbers) => {
   return { delimiter, input };
 };
 
-const validString = (numbers) => {
-  if (numbers === "") return true;
-  const regex = /^[0-9]+(,[0-9]+)*$/;
-  return regex.test(numbers);
-};
+const processNumbers = (numbersString, delimiter) => {
+  if (numbersString === "") return [];
 
-const addStringNumbers = (numbers) => {
-  return numbers
-    .split(",")
+  const nums = numbersString
+    .split(delimiter)
     .map((s) => s.trim())
     .filter((s) => s !== "")
-    .map(Number)
-    .reduce((a, b) => a + b, 0);
-};
+    .map(Number);
 
-const normalizeString = (numbers) => {
-  const { delimiter, input } = parseInput(numbers);
+  const negatives = nums.filter((n) => n < 0);
+  if (negatives.length > 0) {
+    throw new Error(`Negatives not allowed: ${negatives.join(", ")}`);
+  }
 
-  return input.split(delimiter).join(",");
+  return nums;
 };
 
 const addNumbers = (numbers) => {
@@ -55,12 +51,10 @@ const addNumbers = (numbers) => {
     return 0;
   }
 
-  if (validString(numbers)) {
-    return addStringNumbers(numbers);
-  } else {
-    const normalNumbers = normalizeString(numbers);
-    return addStringNumbers(normalNumbers);
-  }
+  const { delimiter, input } = parseInput(numbers);
+  const nums = processNumbers(input, delimiter);
+
+  return nums.reduce((a, b) => a + b, 0);
 };
 
 export default addNumbers;
